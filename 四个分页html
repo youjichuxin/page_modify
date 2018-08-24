@@ -1,0 +1,536 @@
+<%@ Control Language="C#" ClassName="skin_AnewKnolege" %>
+
+<%--  --%>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="edge">
+	<title>知识库</title>
+	<link rel="stylesheet" href="./css/control.css">
+	<link rel="stylesheet" href="./css/iconfont/iconfont.css">
+</head>
+<%--  --%>
+
+<link type="text/css" href="css/newcss/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+<link type="text/css" href="css/newcss/font-awesome.css?v=4.4.0" rel="stylesheet">
+<link type="text/css" href="css/newcss/animate.css" rel="stylesheet">
+<link type="text/css" href="css/newcss/style.css?v=4.1.0" rel="stylesheet">
+<script type="text/javascript" charset="utf-8" src="js/newjs/jquery.min.js?v=2.1.4"></script>
+<script type="text/javascript" charset="utf-8" src="js/newjs/bootstrap.min.js?v=3.3.6"></script>
+<script type="text/javascript" charset="utf-8" src="js/newjs/control.js?v=2.1.4"></script>
+<script type="text/javascript" charset="utf-8" src="js/newjs/my_scrollbar.js?v=3.3.6"></script>
+<link rel="shortcut icon" href="favicon.ico">
+<link href="css/newcss/b.tabs.css?v=4.1.0" rel="stylesheet">
+
+<style type="text/css">
+#myTab .hid{display:none;}
+#myTab .show{display:block;}
+        .aui_close {
+            margin-top: -20px;margin-left: 61px;
+            width: 14px;
+            height: 14px;
+            line-height: 0px;
+            display: block;
+            position: absolute;
+            /*left:10px;
+            top:10px;*/
+            /*font-family: Helvetica, STHeiti;
+            _font-family: '\u9ed1\u4f53', 'Book Antiqua', Palatino;*/
+            font-size: 10px;
+            border-radius: 10px;
+            background: #72c0f7;
+            color: #FFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+            -moz-transition: linear .06s;
+            -webkit-transition: linear .06s;
+            transition: linear .06s;
+            padding: 0;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            cursor: pointer;
+        }
+        .aui_close:hover {
+            margin-top: -20px;margin-left: 61px;
+            width: 14px;
+            height: 14px;
+            line-height: 0px;
+            /*left:8px;
+            top:8px;*/
+            color: #FFF;
+            box-shadow: 0 1px 3px rgba(209, 40, 42, .5);
+            background: #ff7f6b;
+            border-radius: 10px;
+            transition: all 0.2s ease-out;
+            opacity: 0.8;
+        }
+			#right {
+				display: none;
+				position: absolute;
+				background-color: #fff;
+				z-index: 2;
+                border:1px solid #b3b3b3;
+                width: 40px;
+                height: 50px;
+                padding-left: 2px;
+			}
+			
+			#right ul li {
+				list-style: none;
+			}
+/* 设置滚动条的样式 */
+::-webkit-scrollbar {
+width:12px;
+}
+/* 滚动槽 */
+::-webkit-scrollbar-track {
+-webkit-box-shadow:inset006pxrgba(0,0,0,0.3);
+border-radius:10px;
+}
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+border-radius:10px;
+background:rgba(0,0,0,0.1);
+-webkit-box-shadow:inset006pxrgba(0,0,0,0.5);
+}
+::-webkit-scrollbar-thumb:window-inactive {
+background:rgba(255,0,0,0.4);
+}
+    .sui-pagination {
+      
+    }
+    .btn-sm {
+      height:20px;
+      margin-top:-2px;
+      line-height: 3px;
+    }
+    .page-num {
+      width:30px;
+      border:1px solid #ccc;
+      height:18px;
+    }
+    .wrap
+    {
+        width: 100%;
+        text-align: left;
+        border-top: 1px solid #B2DAEA;
+        overflow-y: auto;
+        overflow-x: hidden;
+        font-family: "微软雅黑" , Arial, Helvetica, Verdana, Geneva, sans-serif;
+        font-size: 12px;
+        padding-bottom: 10px;
+        position: relative;
+        z-index: 0;
+    }
+    #bread, .searchbread
+    {
+        padding: 5px 0 5px 10px;
+        width: 94%;
+        border: 1px solid #000;
+        margin: 5px;
+    }
+    #bread img, .searchbread img
+    {
+        float: right;
+        margin-right: 5px;
+        cursor: pointer;
+        margin-top: -16px;
+        background: transparent !important;
+    }
+    #bread a
+    {
+        text-decoration: none;
+    }
+    
+    #pubdirArea, #perdirArea
+    {
+        padding-left: 10px;
+        width: 98%;
+        text-align: left;
+        margin: 0 0 20px 0;
+    }
+    #pubdirArea ul, #perdirArea ul
+    {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    #pubdirArea ul li, #perdirArea ul li
+    {
+        margin: 0;
+        padding: 0;
+    }
+    #pubdirArea ul li img, #perdirArea ul li img
+    {
+        vertical-align: middle;
+        margin: -5px 0 0 0;
+    }
+    #pubdirArea ul li a, #perdirArea ul li a
+    {
+        text-decoration: none;
+    }
+    #keyword, #keywordp
+    {
+        height: 17px;
+        width: 70%;
+        border: 1px solid #e4e4e4;
+        font-size: 12px;
+    }
+    #QuerySubmit, #QuerySubmitp
+    {
+        background: #FFF;
+        width: 57px;
+        cursor: pointer;
+        border: 1px solid #B2DAEA;
+        height: 20px;
+        margin-left: 10px;
+        font-size: 12px;
+        border-radius: 3px;
+    }
+    #knowArea
+    {
+        width: 100%;
+        margin: 0;
+        line-height: 25px;
+    }
+    #knowArea a, .phrase div div a
+    {
+        text-decoration: none;
+        width: 200px;
+        word-break: break-all;
+    }
+    .head
+    {
+        height: 25px;
+        width: 98%;
+        margin: 0;
+        padding: 5px 0 0 10px;
+    }
+    .listInfo
+    {
+        border-bottom: 1px solid #ccc;
+        border-top: 1px solid #ccc;
+    }
+    .headerDiv
+    {
+        text-align: center;
+        margin: 10px;
+        background: #eff8ff;
+        height: 30px;
+        line-height: 30px;
+        border: 1px solid #B2DAEA;
+    }
+    .headerDiv div
+    {
+        margin-right: auto;
+        margin-left: auto;
+    }
+    .headerDiv span
+    {
+        padding: 4px 35px;
+        cursor: pointer;
+        font-weight: bolder;
+        border-radius: 4px;
+    }
+    .lipspan
+    {
+        cursor: default !important;
+        font-weight: lighter !important;
+        color: #B2DAEA;
+    }
+    
+    .menu
+    {
+        padding: 0 0 0 10px;
+        margin: 0;
+        list-style: none;
+        height: 25px;
+        line-height: 20px;
+        color: #b3b3b3;
+        display: none;
+    }
+    .menu li.top
+    {
+        height: 20px;
+        margin: 5px 2px 0 2px;
+        float: left;
+        position: relative;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 0 12px;
+        cursor: pointer;
+        border: 1px solid #FFFFFF;
+        border-bottom: 0;
+    }
+    .menu li.top:hover, .menu li.Active
+    {
+        color: #0066cc;
+        border: 1px solid #B2DAEA;
+        border-bottom: 0;
+        border-radius: 4px 4px 0 0;
+        margin: 6px 2px -1px 2px;
+        z-index: 1;
+        background: #FFF;
+    }
+    .btnbottom
+    {
+        height: 25px;
+        width: 95%;
+        margin: 0 10px;
+        line-height: 25px;
+        position: fixed;
+        z-index: 9;
+        bottom: 0;
+        background: #FFFFFF;
+        display: block;
+    }
+    .btnbottom a
+    {
+        cursor: pointer;
+        color: #65bcf3;
+        text-decoration: none;
+    }
+    .loading
+    {
+        width: 33px;
+        height: 33px;
+        margin: auto;
+    }
+    
+    .phrase
+    {
+        width: 365px;
+        position: relative;
+        margin: 0 auto;
+        padding: 1px 0;
+    }
+    .phrase dt
+    {
+        font-size: 12px;
+        text-align: left;
+        font-weight: bolder;
+        background: #d5d6d8;
+        padding: 3px;
+        color: #000;
+    }
+    .phrase dt img
+    {
+        margin-right: 10px;
+        height: 11px;
+        width: 11px;
+    }
+    .phrase div
+    {
+        text-align: left;
+        line-height: 20px;
+        display: none;
+    }
+    .phrase div div
+    {
+        display: block;
+        padding: 0;
+        cursor: pointer;
+    }
+    .phrase div div table
+    {
+        width: 100%;
+    }
+    .tp
+    {
+        background: #e4f1f9;
+    }
+    .phrase div div:hover, .tp:hover
+    {
+        background: #cae9fd;
+    }
+</style>
+<ul id="menu" class="menu">
+    <li id="menu1" class="top Active" onclick="javascript:switchTab(1)">知识库</li><li id="menu0"
+        class="top" onclick="javascript:switchTab(0)">常用语</li>
+</ul>
+<div class="knowledge_box" style="width:400px;">
+    <div id="knowtab"class="filter_box">
+        <div class="search_inp fl">
+            <input id="keyword" type="text" placeholder="请输入关键字搜索" onkeypress="return keypress(this,event);"style="height:26px;width:176px;" />
+        </div>
+        <div class="btn_box fr">
+            <input id="QuerySubmit" type="button" class="search_btn" style="height:26px;width:56px;color:#FFF;font-weight:bold;font-size:14px;background:#4388e3;margin-left: 10px;" value="搜索" onclick="getKeyword()" />
+        </div>
+
+        <div id="headerDiv" class="btn_toggle fr" style="display:none;">
+            <div class="btn_box fr" style="display:none;">
+                <button id="pubSpan" class="pubilc_btn active" onclick="javascript:showPubPer(this,'pub')">公用</button>
+                <button id="perSpan" class="personal_btn" onclick="javascript:showPubPer(this,'per')">个人</button>
+            </div>
+        </div>
+    </div>
+
+        <div id="panel" class="main_box">
+            <ul id="myTab" class="main_title clearfix" style="margin-bottom:0px;">
+                <li id="Home"class="title_item active" style="width:90px;">
+                 <a id="homepage" onclick="getid(this.id)"  style="height:28px;color:#FFF;font-weight:bold;font-size:14px;background:#4388e3;">
+                     <p id="pagetitle1" style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;margin-bottom:0px;">首页</p>                  
+                 </a>
+                 <input  type="button" value="x" onclick="this.parentNode.parentNode.removeChild(this.parentNode);"class="aui_close"/>
+                </li>              
+                <li id="addpage"><input  type="button" value="+" onclick="addBlank()" class="iconfont icon-add" style="width:30px;background:#fff;margin-left:0px;border-right:1px solid #ccc;height:25px;"/></li>      
+            </ul>
+        </div>
+    <%--href="javascript:showDir(0)"--%>
+
+        <div id="bread" style="margin-left:0px;border:1px solid #B2DAEA;margin-top:0px;width:390px;display:none;">
+        </div>
+        <div id="pubdirArea" style="width:100%;margin-left:0px;border-left:1px solid #ccc;border-top:1px solid #ccc;display: none;margin-top:-2px;height:630px;">
+        </div>
+        <div id="perdirArea" style="display: none;width:100%;margin-left:0px;border-left:1px solid #ccc;border-top:1px solid #ccc;">
+        </div>
+        
+
+        <div id="knowArea" style="margin-top: -2px;margin-left:0px;border:1px solid #ccc;border-top:1px solid #ccc;height:630px;">       
+			<menu id="right">
+				<ul>
+					<li><input  type="button" value="复制" onclick="tocopy()" style="background:#fff;"/></li>
+					<li><input  type="button" value="发送" onclick="tosend()" style="background:#fff;"/></li>
+				</ul>
+			</menu>
+        <div id="myList_emptyTpl" class="loading" style="display:none;">
+            <img src="image/ajax-loader.gif" width="16" height="16" align="middle" style="display:none;" />
+            Loading...
+        </div>             
+            <div id="myList" class="" style="margin-left: -5px; clear: both; margin-top: 0px; height:590px;overflow-y:auto;display:none;">            
+                <table id="myList_table" class="" style="margin-left: 8px; width: 97%;">
+                <thead>                   
+                    <tr class="th">
+                        <th style="text-align: left;padding-right: 0px;">                           
+							<div class="text_box" id="text_2" style="border-bottom:0px solid #ccc;">
+							</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="myList_tbody">
+                    <tr class="th">
+
+                    </tr>
+                </tbody>
+            </table>
+<%--                 <div><input type="button" onclick="totop()" style="position:fixed; bottom:200px; right:540px;width:20px;background:#fff;margin-left:0px;border-right:1px solid #ccc;height:25px;background:url(/image/arrow.png)"/></div>
+                 <div><input type="button" onclick="zip()" style="position:fixed; bottom:182px; right:540px;width:20px;background:#fff;margin-left:0px;border-right:1px solid #ccc;height:22px;background:url(/image/zip.png)"/></div>--%>
+            </div>
+            <%--  --%>
+             <div id="myList2" class="" style="margin-left: -5px; clear: both; margin-top: 0px; height:590px;overflow-y:auto;display:none;">            
+                <table id="myList_table2" class="" style="margin-left: 12px; width: 97%;">
+                <thead>                   
+                    <tr class="th">
+                        <th style="text-align: left;padding-right: 30px;">                           
+							<div class="text_box" id="text_3" style="border-bottom:0px solid #ccc;">
+							</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="myList_tbody2">
+                    <tr class="th">
+
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            <div id="myList3" class="" style="margin-left: -5px; clear: both; margin-top: 0px; height:590px;overflow-y:auto;display:none;">            
+                <table id="myList_table3" class="" style="margin-left: 12px; width: 97%;">
+                <thead>                   
+                    <tr class="th">
+                        <th style="text-align: left;padding-right: 30px;">                           
+							<div class="text_box" id="text_4"style="border-bottom:0px solid #ccc;">
+							</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="myList_tbody3">
+                    <tr class="th">
+
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            <div id="myList4" class="" style="margin-left: -5px; clear: both; margin-top: 0px; height:590px;overflow-y:auto;display:none;">            
+                <table id="myList_table4" class="" style="margin-left: 12px; width: 97%;">
+                <thead>                   
+                    <tr class="th">
+                        <th style="text-align: left;padding-right: 30px;">                           
+							<div class="text_box" id="text_5"style="border-bottom:0px solid #ccc;">
+							</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="myList_tbody4">
+                    <tr class="th">
+
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+                 <div><input type="button" onclick="totop()" style="position:fixed; bottom:100px; right:20px;width:20px;background:#fff;margin-left:0px;border-right:1px solid #ccc;height:25px;background:url(/image/arrow.png)"/></div>
+                 <div><input type="button" onclick="zip()" style="position:fixed; bottom:80px; right:20px;width:20px;background:#fff;margin-left:0px;border-right:1px solid #ccc;height:22px;background:url(/image/zip.png)"/></div>
+
+            <%--  --%>
+            <div id="DataNavigator" style="position:fixed;bottom: 0px;border-top:1px solid #ccc;width: 398px;background:#fff;" class="sui-pagination">
+                <div style="margin-left: 10px; clear: both; margin-top: -10px;">
+                    <ul id="span_page"></ul>
+                </div>
+                <div id="span_total" style="float: left; margin-left: 10px; margin-top: 0px;">
+                </div>
+            </div>
+        </div>
+<%--        <div id="btnbottom1" class="btnbottom">
+            <a href="http://211.155.228.43/mgr_knowledge">添加</a><a id="QueryFlash" style="float: right;">刷新</a>
+        </div>--%>
+
+
+    <div id="phrasetab" style="display: none;">
+        <div class="head">
+            <input id="keywordp" type="text" style="width: 70%;" placeholder="请输入关键字搜索" onkeypress="return keypress(this,event);" />
+            <input id="QuerySubmitp" type="button" value="查询" />
+        </div>
+        <div id="phraseArea">
+        </div>
+        <div id="myList_emptyTplt" class="loading">
+            <img src="image/ajax-loader.gif" width="16" height="16" />
+        </div>
+        <div id="btnbottom2" class="btnbottom">
+            <a href="http://211.155.228.43/mgr_phrase">添加</a><a id="phraseFlash" style="float: right;">刷新</a>
+        </div>
+    </div>
+
+
+<div id="btnbottom1" class="btnbottom" style="width:20%;margin-left:80%;display:none;">
+    <a href="http://211.155.228.43/mgr_knowledge" style="margin-left:20px;">添加</a>
+    <a id="QueryFlash" style="margin-left:2%;">刷新</a>
+</div>
+
+        </div>
+
+<script type="text/xml-script">
+  <page xmlns:script="http://schemas.microsoft.com/xml-script/2005">
+      <components>
+          <dataSource id="listDataSource" />
+      </components>
+  </page>
+</script>
+
+<script>
+    function showphraseDetail(targetid, objN) {
+        var d = $get(targetid);
+        var sb = $get(objN);
+        if (d.style.display == "block") {
+            d.style.display = "none";
+            sb.src = "image/tab/leftoff.png";
+        }
+        else {
+            d.style.display = "block";
+            sb.src = "image/tab/lefton.png";
+        }
+    }
+
+    //++++++++++++++++++++++++++++++++++++++++++
+
+
+</script>
