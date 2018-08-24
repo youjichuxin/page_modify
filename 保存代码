@@ -1,0 +1,1008 @@
+var dir_data = null;
+var con_data = null;
+var pdir_data = null;
+var pcon_data = null;
+var AccountID = "211827";
+var UserID = "215796";
+//var AccountID = getQueryString("AccountID");//获取查询的字符串
+//var UserID = getQueryString("UserID");
+var showtab = getQueryString("tab");
+var Active = getQueryString("ActiveKnowledge");
+var judgeShow = true;
+var l;
+var sltdirectoryID = 0;
+var getID = "homepage";
+var zip_data = [],zlcode_data=[];
+var ck = 0;
+var search_text = "", dirID_string, begin_file, final_content = "", expand_content = "";
+var totalpage = 10;
+var page_title1 = "首页", page_title2 = "新页面", page_title3 = "新页面", page_title4 = "新页面";
+
+function pageLoad(sender, args) {
+    var myDataSource = $find("listDataSource");
+    $create(myService.PageNavigator,
+                    {
+                        id: "PageNavigator", listDataSource: myDataSource, rowsPerPage: 20, pagesPerShow: 10, divPageDetail: $get("DataNavigator"), spanTotal: $get("span_total"),
+                        spanPage: $get("span_page"), divLoading: $get("myList_emptyTpl")
+                    },
+                    {
+                        LoadData: onLoadData,
+                        dataAvailable: onShowData
+                    });
+
+    var Height = document.documentElement.clientHeight; //浏览器高度
+    var scroll_boxHeight = Height - 73; //图表区域高度
+    $("#knowArea").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+    loadData();
+}
+
+//加载数据
+function loadData() {
+    //$get("myList_emptyTpl").style.display = "";//表格
+    $get("QueryFlash").disabled = true;
+    KnowledgeInfo.sp_Query_KnowledgeDirectoryDY(AccountID, UserID, "0", onDirDataAvailable);//
+}
+
+function onDirDataAvailable(result) {
+    //console.log(result.rows);
+    if (result == null || result.rows == null || result.rows.length == 0) {
+        $get("bread").style.display = "none";
+        $get("pubdirArea").style.display = "none";
+        $get("knowArea").style.display = "";
+        return;
+    }
+    dir_data = result.rows;
+    showDir("0");
+}
+
+function onConDataAvailable(result) {//到最后一层开始搜索具体内容
+    //console.log(result.rows);
+    final_content = "";
+    $get("QueryFlash").disabled = false;
+
+    if (result == null || result.rows == null || result.rows.length == 0) {
+        return;
+    }
+    con_data = result.rows;
+    zlcode_data = [];
+    for (var i = 0; i < con_data.length; i++) {
+        zlcode_data.push(con_data[i]["ZLCODE"]);       
+        final_content += getKnowledgeStr2(con_data[i]["ZLCODE"], con_data[i]["ZLTITLE"].trim(), con_data[i]["ZLNR"]);
+        KnowledgeInfo.knowledgeDetail_Request(con_data[i]["ZLCODE"], onContentDataAvailable);//具体内容一大串放到数组里面
+    }
+
+    if (getID == "homepage") {
+        $get("myList").style.display = "";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "none";
+        //$get("DataNavigator").style.display = "none";
+        var myList_tbody = ClearShowArea("myList_tbody");
+        myList_tbody.appendChild(document.createElement("tr"));
+        var Height = document.documentElement.clientHeight; //浏览器高度
+        var scroll_boxHeight = Height - 73; //图表区域高度
+        $("#text_2").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+        $get("text_2").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">" + search_text + "</li>" + final_content + "</ul>";//公共目录区域
+        final_content = "";
+    } else if (getID == "homepage1") {
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "none";
+        //$get("DataNavigator").style.display = "none";
+        var myList_tbody = ClearShowArea("myList_tbody");
+        myList_tbody.appendChild(document.createElement("tr"));
+        var Height = document.documentElement.clientHeight; //浏览器高度
+        var scroll_boxHeight = Height - 73; //图表区域高度
+        $("#text_3").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+        $get("text_3").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">" + search_text + "</li>" + final_content + "</ul>";//公共目录区域
+        final_content = "";
+    } else if (getID == "homepage2") {
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "";
+        $get("myList4").style.display = "none";
+        //$get("DataNavigator").style.display = "none";
+        var myList_tbody = ClearShowArea("myList_tbody");
+        myList_tbody.appendChild(document.createElement("tr"));
+        var Height = document.documentElement.clientHeight; //浏览器高度
+        var scroll_boxHeight = Height - 73; //图表区域高度
+        $("#text_4").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+        $get("text_4").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">" + search_text + "</li>" + final_content + "</ul>";//公共目录区域
+        final_content = "";
+    } else if (getID == "homepage3") {
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "";
+        //$get("DataNavigator").style.display = "none";
+        var myList_tbody = ClearShowArea("myList_tbody");
+        myList_tbody.appendChild(document.createElement("tr"));
+        var Height = document.documentElement.clientHeight; //浏览器高度
+        var scroll_boxHeight = Height - 73; //图表区域高度
+        $("#text_5").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+        $get("text_5").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">" + search_text + "</li>" + final_content + "</ul>";//公共目录区域
+        final_content = "";
+    }
+}
+function onContentDataAvailable(result) {//具体内容数组
+    //$get("myList_emptyTpl").style.display = "";
+    var content_data = result.rows, t;
+    expandContent(content_data[0]["ZLNR"]);
+}
+function showBread(dirID) {//显示bread
+    $get("myList_emptyTpl").style.display = "none";
+    $get("bread").style.display = "none";
+    if (dirID == 0) {
+        $get("bread").style.display = "none";
+        return;
+    }
+    var thisID = dirID;
+    var breadHtml = "", returnID = "", firstID = true;
+
+    if (thisID == -1) {
+        breadHtml = "搜索";
+    }else {
+        for (var i = dir_data.length - 1; i >= 0; i--) {//倒叙手法，先得出行政法，然后才是相关法法规及其链接
+            if (dir_data[i]["directoryID"] == thisID) {
+                if (thisID == dirID) {
+                    breadHtml = dir_data[i]["dirName"];
+                }
+                else {
+                    thisID = "\"" + thisID + "\"";//传的时候为了防止改变传递参数
+                    breadHtml = "<a href='javascript:showDir(" + thisID + ")'>" + dir_data[i]["dirName"] + "</a>&nbsp;&gt;&nbsp;" + breadHtml;
+                }
+                thisID = dir_data[i]["parent"];//0,
+            }
+        }
+    }
+    search_text = "<a href='javascript:showDir(0)'>首页</a>&nbsp;&gt;&nbsp;" + breadHtml;//
+}
+
+function showDir(dirID) {//显示目录名
+    //console.log(dir_data);
+    $get("myList_emptyTpl").style.display = "none";
+    var pubdirHtml = "", dirHtml = "", subdirectory = "", dirID_string="";
+
+    showBread(dirID);
+    sltdirectoryID = dirID;//
+    zip_data = [];
+
+    if (dir_data == null) {
+        alert("目录为空！");
+        return;
+    }
+    if (dirID == "0") {
+        for (var i = 0; i < dir_data.length; i++) {
+            if (dir_data[i]["parent"] == dirID && dir_data[i]["privateFlag"] == "0") {
+                dirID_string = "\"" + dir_data[i]["directoryID"].toString() + "\"";
+                pubdirHtml += "<li><img src='image/dtree/folder.gif' border='0'  />&nbsp;<a href='javascript:showDir(" + dir_data[i]["directoryID"].toString()  + ")'>" + dir_data[i]["dirName"] + "</a>" + "<ul>" + subdirectory + "</ul>" + "</li>";
+            }            
+        }
+        if (pubdirHtml.length == 0) {
+            $get("text_2").style.display = "none";
+        } else {
+            if (getID == "homepage") {
+                $get("myList").style.display = "";
+                $get("myList2").style.display = "none";
+                $get("myList3").style.display = "none";
+                $get("myList4").style.display = "none";
+                $get("DataNavigator").style.display = "none";//n
+                var myList_tbody = ClearShowArea("myList_tbody");
+                myList_tbody.appendChild(document.createElement("tr"));
+                var Height = document.documentElement.clientHeight; //浏览器高度
+                var scroll_boxHeight = Height - 73; //图表区域高度
+                $("#text_2").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+                $get("text_2").innerHTML = "<ul>" + pubdirHtml + "</ul>";//公共目录区域
+            } else if (getID == "homepage1") {
+                $get("myList").style.display = "none";
+                $get("myList2").style.display = "";
+                $get("myList3").style.display = "none";
+                $get("myList4").style.display = "none";
+                $get("DataNavigator").style.display = "none";//n
+                var myList_tbody2 = ClearShowArea("myList_tbody2");
+                myList_tbody2.appendChild(document.createElement("tr"));
+                var Height = document.documentElement.clientHeight; //浏览器高度
+                var scroll_boxHeight = Height - 73; //图表区域高度
+                $("#text_3").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+                $get("text_3").innerHTML = "<ul>" + pubdirHtml + "</ul>";//公共目录区域
+            } else if (getID == "homepage2") {
+                $get("myList").style.display = "none";
+                $get("myList2").style.display = "none";
+                $get("myList3").style.display = "";
+                $get("myList4").style.display = "none";
+                $get("DataNavigator").style.display = "none";//n
+                var myList_tbody3 = ClearShowArea("myList_tbody3");
+                myList_tbody3.appendChild(document.createElement("tr"));
+                var Height = document.documentElement.clientHeight; //浏览器高度
+                var scroll_boxHeight = Height - 73; //图表区域高度
+                $("#text_4").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+                $get("text_4").innerHTML = "<ul>" + pubdirHtml + "</ul>";//公共目录区域
+            } else if (getID == "homepage3") {
+                $get("myList").style.display = "none";
+                $get("myList2").style.display = "none";
+                $get("myList3").style.display = "none";
+                $get("myList4").style.display = "";
+                $get("DataNavigator").style.display = "none";//n
+                var myList_tbody4 = ClearShowArea("myList_tbody4");
+                myList_tbody4.appendChild(document.createElement("tr"));
+                var Height = document.documentElement.clientHeight; //浏览器高度
+                var scroll_boxHeight = Height - 73; //图表区域高度
+                $("#text_5").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+                $get("text_5").innerHTML = "<ul>" + pubdirHtml + "</ul>";//公共目录区域
+            }
+        }
+    } else if (dirID != "0") {
+        for (var i = 0; i < dir_data.length; i++) {
+            if (dir_data[i]["parent"] == "0") {
+                begin_file = dir_data[i]["directoryID"];
+            }
+        }
+        //if (dirID == 6 || dirID == 9 || dirID == 7 || dirID == 8) {
+        //    begin_file = dirID;
+        //}
+        dirID = dirID.toString();
+        zip_data = [];
+        for (var i = 0; i < dir_data.length; i++) {
+            if (dir_data[i]["parent"] == dirID && dir_data[i]["privateFlag"] == "0") {
+                dirID_string = "\"" + dir_data[i]["directoryID"].toString() + "\"";
+                subdirectory += "<li><img src='image/dtree/folder.gif' border='0'  />&nbsp;<a href='javascript:showDir(" + dirID_string + ")'>" + dir_data[i]["dirName"] + "</a>" + "</li>";
+            }
+        }
+        if (subdirectory == "") {
+            KnowledgeInfo.knowledgeContent_Request("", begin_file, dirID, onConDataAvailable);//搜索具体内容
+        }
+        dirHtml += subdirectory;
+
+        if (getID == "homepage") {
+            $get("myList").style.display = "";
+            $get("myList2").style.display = "none";
+            $get("myList3").style.display = "none";
+            $get("myList4").style.display = "none";
+            //$get("DataNavigator").style.display = "none";
+            var myList_tbody = ClearShowArea("myList_tbody");
+            myList_tbody.appendChild(document.createElement("tr"));
+            var Height = document.documentElement.clientHeight; //浏览器高度
+            var scroll_boxHeight = Height - 73; //图表区域高度
+            $("#text_2").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+            $get("text_2").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">"+search_text+"</li>" + dirHtml + "</ul>";//公共目录区域
+        } else if (getID == "homepage1") {
+            $get("myList").style.display = "none";
+            $get("myList2").style.display = "";
+            $get("myList3").style.display = "none";
+            $get("myList4").style.display = "none";
+            //$get("DataNavigator").style.display = "none";
+            var myList_tbody2 = ClearShowArea("myList_tbody2");
+            myList_tbody2.appendChild(document.createElement("tr"));
+            var Height = document.documentElement.clientHeight; //浏览器高度
+            var scroll_boxHeight = Height - 73; //图表区域高度
+            $("#text_3").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+            $get("text_3").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">" + search_text + "</li>" + dirHtml + "</ul>";//公共目录区域
+        } else if (getID == "homepage2") {
+            $get("myList").style.display = "none";
+            $get("myList2").style.display = "none";
+            $get("myList3").style.display = "";
+            $get("myList4").style.display = "none";
+            //$get("DataNavigator").style.display = "none";
+            var myList_tbody3 = ClearShowArea("myList_tbody3");
+            myList_tbody3.appendChild(document.createElement("tr"));
+            var Height = document.documentElement.clientHeight; //浏览器高度
+            var scroll_boxHeight = Height - 73; //图表区域高度
+            $("#text_4").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+            $get("text_4").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">" + search_text + "</li>" + dirHtml + "</ul>";//公共目录区域
+        } else if (getID == "homepage3") {
+            $get("myList").style.display = "none";
+            $get("myList2").style.display = "none";
+            $get("myList3").style.display = "none";
+            $get("myList4").style.display = "";
+            //$get("DataNavigator").style.display = "none";
+            var myList_tbody4 = ClearShowArea("myList_tbody4");
+            myList_tbody4.appendChild(document.createElement("tr"));
+            var Height = document.documentElement.clientHeight; //浏览器高度
+            var scroll_boxHeight = Height - 73; //图表区域高度
+            $("#text_5").css("height", scroll_boxHeight + "px"); //赋值图表区域的高度
+            $get("text_5").innerHTML = "<ul>" + "<li style=\"text-align:  left;\">" + search_text + "</li>" + dirHtml + "</ul>";//公共目录区域
+        }
+    }
+}
+
+function getKnowledgeStr2(zlcode, title, content) {//搜索内容
+    if (getID == "homepage") {
+        zlcode_string = "\"" + zlcode.toString() + "\"";
+        return String.format("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"\">\
+            <tr><td width=\"\">&nbsp;</td><td style=\"WORD-WRAP: break-word;\">\
+            <a href='javascript:showDetail({3})'>{1}</a></td>\
+            </tr>\
+            <tr id=\"knowDetail_{0}\" style=\"display:none\">\
+               <td width=\"10\" class=\"listInfo\">&nbsp;</td>\
+               <td class=\"listInfo\" style=\"WORD-WRAP: break-word;\" id=\"td{0}\">\
+              {2}<img src=\"image/ajax-loader.gif\" style=\"width:16px;height:16px;\" />\
+               </td>\
+              <td width=\"\" class=\"listInfo\"></td></tr>\
+              </table>",
+                  zlcode,
+                  title,
+                  content,
+                  zlcode_string,
+                  final_content
+                  );
+    } else if (getID == "homepage1") {
+        zlcode_string = "\"" + zlcode.toString() + "\"";
+        return String.format("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"\">\
+            <tr><td width=\"\">&nbsp;</td><td style=\"WORD-WRAP: break-word;\">\
+            <a href='javascript:showDetail({3})'>{1}</a></td>\
+            </tr>\
+            <tr id=\"knowDetail_1_{0}\" style=\"display:none\">\
+               <td width=\"10\" class=\"listInfo\">&nbsp;</td>\
+               <td class=\"listInfo\" style=\"WORD-WRAP: break-word;\" id=\"td_1_{0}\">\
+              {2}<img src=\"image/ajax-loader.gif\" style=\"width:16px;height:16px;\" />\
+               </td>\
+              <td width=\"\" class=\"listInfo\"></td></tr>\
+              </table>",
+                  zlcode,
+                  title,
+                  content,
+                  zlcode_string,
+                  final_content
+                  );
+    } else if (getID == "homepage2") {
+        zlcode_string = "\"" + zlcode.toString() + "\"";
+        return String.format("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"\">\
+            <tr><td width=\"\">&nbsp;</td><td style=\"WORD-WRAP: break-word;\">\
+            <a href='javascript:showDetail({3})'>{1}</a></td>\
+            </tr>\
+            <tr id=\"knowDetail_2_{0}\" style=\"display:none\">\
+               <td width=\"10\" class=\"listInfo\">&nbsp;</td>\
+               <td class=\"listInfo\" style=\"WORD-WRAP: break-word;\" id=\"td_2_{0}\">\
+              {2}<img src=\"image/ajax-loader.gif\" style=\"width:16px;height:16px;\" />\
+               </td>\
+              <td width=\"\" class=\"listInfo\"></td></tr>\
+              </table>",
+                  zlcode,
+                  title,
+                  content,
+                  zlcode_string,
+                  final_content
+                  );
+    } else if (getID == "homepage3") {
+        zlcode_string = "\"" + zlcode.toString() + "\"";
+        return String.format("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"\">\
+            <tr><td width=\"\">&nbsp;</td><td style=\"WORD-WRAP: break-word;\">\
+            <a href='javascript:showDetail({3})'>{1}</a></td>\
+            </tr>\
+            <tr id=\"knowDetail_3_{0}\" style=\"display:none\">\
+               <td width=\"10\" class=\"listInfo\">&nbsp;</td>\
+               <td class=\"listInfo\" style=\"WORD-WRAP: break-word;\" id=\"td_3_{0}\">\
+              {2}<img src=\"image/ajax-loader.gif\" style=\"width:16px;height:16px;\" />\
+               </td>\
+              <td width=\"\" class=\"listInfo\"></td></tr>\
+              </table>",
+                  zlcode,
+                  title,
+                  content,
+                  zlcode_string,
+                  final_content
+                  );
+    }
+}
+
+function knowledgeTotal(kID) {
+    KnowledgeManage.sp_Insert_knowledgeTotal(AccountID, kID);
+}
+
+function showKnowledge(dirID) {
+    if (dirID == 0) {
+        $get("knowArea").style.display = "";//
+        return;
+    }
+
+    var knowHtml = "";
+    for (var i = 0; i < con_data.length; i++) {
+        if (con_data[i]["directoryID"] == dirID) {
+            knowHtml += getKnowledgeStr(con_data[i]["kID"], con_data[i]["title"].trim(), con_data[i]["content"].trim());
+        }
+    }
+    $("#text_2").innerHTML = knowHtml;
+    $get("knowArea").style.display = "";
+    $get("myList").style.display = "";
+
+    if (knowHtml.length == 0) {
+        $get("knowArea").style.display = "";//
+    }
+    else {
+        $get("knowArea").style.display = "";
+    }
+}
+
+function expandContent(content) {
+    if (getID == "homepage") {
+        var t;
+        for (var i = 0; i < zlcode_data.length; i++) {
+            t = $get("td" + zlcode_data[i]);
+            t.innerHTML = content;
+        }
+    } else if (getID == "homepage1") {
+        var t;
+        for (var i = 0; i < zlcode_data.length; i++) {
+            t = $get("td_1_" + zlcode_data[i]);
+            t.innerHTML = content;
+        }
+    } else if (getID == "homepage2") {
+        var t;
+        for (var i = 0; i < zlcode_data.length; i++) {
+            t = $get("td_2_" + zlcode_data[i]);
+            t.innerHTML = content;
+        }
+    } else if (getID == "homepage3") {
+        var t;
+        for (var i = 0; i < zlcode_data.length; i++) {
+            t = $get("td_3_" + zlcode_data[i]);
+            t.innerHTML = content;
+        }
+    }
+    $get("myList_emptyTpl").style.display = "none";
+}
+function showDetail(id) {
+    if (getID == "homepage") {
+        var k = $get("knowDetail_" + id);
+        if (k.style.display == "none") {
+            k.style.display = "";
+        }
+        else {
+            k.style.display = "none";
+        }
+    } else if (getID == "homepage1") {
+        var k = $get("knowDetail_1_" + id);
+        if (k.style.display == "none") {
+            k.style.display = "";
+        }
+        else {
+            k.style.display = "none";
+        }
+    } else if (getID == "homepage2") {
+        var k = $get("knowDetail_2_" + id);
+        if (k.style.display == "none") {
+            k.style.display = "";
+        }
+        else {
+            k.style.display = "none";
+        }
+    } else if (getID == "homepage3") {
+        var k = $get("knowDetail_3_" + id);
+        if (k.style.display == "none") {
+            k.style.display = "";
+        }
+        else {
+            k.style.display = "none";
+        }
+    }
+}
+function showzip(id) {
+    var k = $get("knowDetail_" + id);
+    k.style.display = "";
+}
+function hidezip(id) {
+    if (getID == "homepage") {
+        var k = $get("knowDetail_" + id);
+        k.style.display = "none";
+    } else if (getID == "homepage1") {
+        var k = $get("knowDetail_1_" + id);
+        k.style.display = "none";
+    } else if (getID == "homepage2") {
+        var k = $get("knowDetail_2_" + id);
+        k.style.display = "none";
+    } else if (getID == "homepage3") {
+        var k = $get("knowDetail_3_" + id);
+        k.style.display = "none";
+    }
+}
+
+//查询关键字
+function getKeyword() {
+    var key = document.getElementById("keyword").value;//关键词
+
+    if (key.length > 0) {
+        //document.getElementById("pagetitle1").innerText = document.getElementById("keyword").value;
+        pageTitle();
+        document.getElementById("QuerySubmit").disabled = true;//搜索暂时失效
+        submit_click();
+    }
+    else {
+        alert("请输入查询的关键字！");
+    }
+}
+function onLoadData(sender, args) {//Math.ceil(5.21)=6 
+    KnowledgeInfo.knowledgePage_Request(document.getElementById("keyword").value, "", "", "1", "10", Function.createDelegate(sender, sender.onDetailDataAvailable));    
+}
+function submit_click() {
+    var myPageNavigator = $find("PageNavigator");
+    var pageIndex = myPageNavigator.get_pageIndex();
+    if (pageIndex == 0)
+        pageIndex = 1;
+    myPageNavigator.LaodPage(pageIndex);
+
+    $get("knowArea").style.display = "";
+
+    if (getID == "homepage") {
+        $get("myList").style.display = "";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "none";
+    } else if (getID == "homepage1") {
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "none";
+    } else if (getID == "homepage2") {
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "";
+        $get("myList4").style.display = "none";
+    } else if (getID == "homepage3") {
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "";
+    }
+}
+
+function onShowData(sender, args) {
+    
+    $get("DataNavigator").style.display = "";
+    if (getID == "homepage") {
+        var data = sender.get_listDataSource().get_data();
+        var tr, td, ck = 0;
+        var myList_tbody = ClearShowArea("myList_tbody");
+        zlcode_data = [];
+        totalpage = Math.ceil(data.get_length() / 10);
+        totalpage = "\"" + totalpage + "\"";
+        //console.log(data);
+        for (var rowIndex = 0; rowIndex < data.get_length() ; rowIndex++) {
+            zlcode_data.push(data.getItem(rowIndex).get_rowObject()["ZLCODE"]);
+            if (ck == 0) {
+                tr = document.createElement("tr");
+                tr.className = "td";
+                td = document.createElement("td");
+                td.align = "left";
+                td.innerHTML = "<input style=\"border:0px;background:#fff;\" type=\"button\"  value=\"首页>搜索结果\" onclick=\"javascript:showDir(0);\"/>";;
+                tr.appendChild(td);
+                myList_tbody.appendChild(tr);
+                ck = 1;
+            }
+            tr = document.createElement("tr");
+            tr.className = "td";
+            td = document.createElement("td");
+            td.align = "center";
+            td.innerHTML = getKnowledgeStr2(data.getItem(rowIndex).get_rowObject()["ZLCODE"], data.getItem(rowIndex).get_rowObject()["ZLTITLE"].trim(), data.getItem(rowIndex).get_rowObject()["ZLNR"]);
+            KnowledgeInfo.knowledgeDetail_Request(data.getItem(rowIndex).get_rowObject()["ZLCODE"], onContentDataAvailable);//具体内容一大串放到数组里面
+            tr.appendChild(td);
+
+            myList_tbody.appendChild(tr);
+        }
+        $get("text_2").innerHTML = "";
+        $("#text_2").css("height", 0 + "px");
+    }else if (getID == "homepage1") {
+        var data = sender.get_listDataSource().get_data();
+        var tr, td, ck1 = 0;
+        var myList_tbody2 = ClearShowArea("myList_tbody2");
+        zlcode_data = [];
+        for (var rowIndex = 0; rowIndex < data.get_length() ; rowIndex++) {
+            zlcode_data.push(data.getItem(rowIndex).get_rowObject()["ZLCODE"]);
+            if (ck1 == 0) {
+                tr = document.createElement("tr");
+                tr.className = "td";
+                td = document.createElement("td");
+                td.align = "left";
+                td.innerHTML = "<input style=\"border:0px;background:#fff;\" type=\"button\"  value=\"首页>搜索结果\" onclick=\"javascript:showDir(0);\"/>";;
+                tr.appendChild(td);
+                myList_tbody2.appendChild(tr);
+                ck1 = 1;
+            }
+            tr = document.createElement("tr");
+            tr.className = "td";
+            td = document.createElement("td");
+            td.align = "center";
+            td.innerHTML = getKnowledgeStr2(data.getItem(rowIndex).get_rowObject()["ZLCODE"], data.getItem(rowIndex).get_rowObject()["ZLTITLE"].trim(), data.getItem(rowIndex).get_rowObject()["ZLNR"]);
+            KnowledgeInfo.knowledgeDetail_Request(data.getItem(rowIndex).get_rowObject()["ZLCODE"], onContentDataAvailable);//具体内容一大串放到数组里面
+            tr.appendChild(td);
+
+            myList_tbody2.appendChild(tr);
+        }
+        $get("text_3").innerHTML = "";
+        $("#text_3").css("height", 0 + "px");
+    } else if (getID == "homepage2") {
+        var data = sender.get_listDataSource().get_data();
+        var tr, td, ck2 = 0;
+        var myList_tbody3 = ClearShowArea("myList_tbody3");
+        zlcode_data = [];
+        for (var rowIndex = 0; rowIndex < data.get_length() ; rowIndex++) {
+            zlcode_data.push(data.getItem(rowIndex).get_rowObject()["ZLCODE"]);
+            if (ck2 == 0) {
+                tr = document.createElement("tr");
+                tr.className = "td";
+                td = document.createElement("td");
+                td.align = "left";
+                td.innerHTML = "<input style=\"border:0px;background:#fff;\" type=\"button\"  value=\"首页>搜索结果\" onclick=\"javascript:showDir(0);\"/>";;
+                tr.appendChild(td);
+                myList_tbody3.appendChild(tr);
+                ck2 = 1;
+            }
+            tr = document.createElement("tr");
+            tr.className = "td";
+            td = document.createElement("td");
+            td.align = "center";
+            td.innerHTML = getKnowledgeStr2(data.getItem(rowIndex).get_rowObject()["ZLCODE"], data.getItem(rowIndex).get_rowObject()["ZLTITLE"].trim(), data.getItem(rowIndex).get_rowObject()["ZLNR"]);
+            KnowledgeInfo.knowledgeDetail_Request(data.getItem(rowIndex).get_rowObject()["ZLCODE"], onContentDataAvailable);//具体内容一大串放到数组里面
+            tr.appendChild(td);
+
+            myList_tbody3.appendChild(tr);
+        }
+        $get("text_4").innerHTML = "";
+        $("#text_4").css("height", 0 + "px");
+    } else if (getID == "homepage3") {
+        var data = sender.get_listDataSource().get_data();
+        var tr, td, ck3 = 0;
+        var myList_tbody4 = ClearShowArea("myList_tbody4");
+        zlcode_data = [];
+        for (var rowIndex = 0; rowIndex < data.get_length() ; rowIndex++) {
+            zlcode_data.push(data.getItem(rowIndex).get_rowObject()["ZLCODE"]);
+            if (ck3 == 0) {
+                tr = document.createElement("tr");
+                tr.className = "td";
+                td = document.createElement("td");
+                td.align = "left";
+                td.innerHTML = "<input style=\"border:0px;background:#fff;\" type=\"button\"  value=\"首页>搜索结果\" onclick=\"javascript:showDir(0);\"/>";;
+                tr.appendChild(td);
+                myList_tbody4.appendChild(tr);
+                ck3 = 1;
+            }
+            tr = document.createElement("tr");
+            tr.className = "td";
+            td = document.createElement("td");
+            td.align = "center";
+            td.innerHTML = getKnowledgeStr2(data.getItem(rowIndex).get_rowObject()["ZLCODE"], data.getItem(rowIndex).get_rowObject()["ZLTITLE"].trim(), data.getItem(rowIndex).get_rowObject()["ZLNR"]);
+            KnowledgeInfo.knowledgeDetail_Request(data.getItem(rowIndex).get_rowObject()["ZLCODE"], onContentDataAvailable);//具体内容一大串放到数组里面
+            tr.appendChild(td);
+
+            myList_tbody4.appendChild(tr);
+        }
+        $get("text_5").innerHTML = "";
+        $("#text_5").css("height", 0 + "px");
+    }
+    document.getElementById("QuerySubmit").disabled = false;
+}
+
+function searchKnowledge(result) {
+    var tr, td;
+    var myList_tbody = ClearShowArea("myList_tbody");
+    if (result == null || result.rows == null) {
+        alert("没有匹配的问题！");
+        return;
+    }
+    var rows = result.rows;
+    var pubknowHtml = "", perknowHtml = "", knowHtml = "", showknowhtml = "";
+    for (var i = 0; i < rows.length; i++) {
+        if (rows[i]["privateFlag"] == "1") {
+
+            searchID = rows[i]["kID"];
+            reloadPage();
+            perknowHtml += getKnowledgeStr(rows[i]["kID"], rows[i]["title"].trim(), rows[i]["content"].trim());
+
+            tr = document.createElement("tr");
+            td = document.createElement("td");
+            td.align = "center";
+            td.innerText = getKnowledgeStr(rows[rowIndex]["kID"], rows[rowIndex]["title"].trim(), rows[rowIndex]["content"].trim());
+            tr.appendChild(td);
+
+            myList_tbody.appendChild(tr);
+        }
+        else {
+            searchID = rows[i]["kID"];
+            reloadPage();//页面加载停留
+            pubknowHtml += getKnowledgeStr(rows[i]["kID"], rows[i]["title"].trim(), rows[i]["content"].trim());
+
+            tr = document.createElement("tr");
+            td = document.createElement("td");
+            td.align = "center";
+            td.innerText = getKnowledgeStr(rows[rowIndex]["kID"], rows[rowIndex]["title"].trim(), rows[rowIndex]["content"].trim());
+            tr.appendChild(td);
+
+            myList_tbody.appendChild(tr);
+        }
+    }
+
+    if (pubknowHtml.length > 0 || perknowHtml.length > 0) {
+        $get("pubdirArea").style.display = "none";
+        $get("perdirArea").style.display = "none";
+        $get("headerDiv").style.display = "none";
+
+        if (sltdirectoryID == 0) {
+            $get("bread").style.display = "none";
+
+            if (perknowHtml.length > 0)
+                knowHtml += "<div class=\"searchbread\" style=\"line-height:15px;margin-left:0px;border:0px solid #B2DAEA;\">搜索&nbsp;&gt;&nbsp;个人<img src=\"image/chatright/arrow-left.png\" style=\"margin-top:2px;\" onclick=\"showPubPer($get('perSpan'), 'per');\"/></div>" + perknowHtml;
+            if (pubknowHtml.length > 0)
+                knowHtml += "<div class=\"searchbread\" style=\"line-height:15px;margin-left:0px;border:0px solid #B2DAEA;\">搜索&nbsp;&gt;&nbsp;公共<img src=\"image/chatright/arrow-left.png\" style=\"margin-top:2px;\" onclick=\"showPubPer($get('pubSpan'), 'pub');\"/></div>" + pubknowHtml;
+        }
+        else {
+            if (perknowHtml.length > 0)
+                knowHtml += perknowHtml;
+            if (pubknowHtml.length > 0)
+                knowHtml += pubknowHtml;
+        }
+
+        $get("knowArea").style.display = "";
+        $get("text_2").innerHTML = knowHtml;
+    }
+}
+
+function getQueryString(name) {
+    if (location.href.indexOf("?") == -1 || location.href.indexOf(name + '=') == -1) {
+        return '';
+    }
+
+    var queryString = location.href.substring(location.href.indexOf("?") + 1);
+
+    // 分离参数对 ?key=value&key2=value2     
+    var parameters = queryString.split("&");
+    var pos, paraName, paraValue;
+
+    for (var i = 0; i < parameters.length; i++) {
+        pos = parameters[i].indexOf('=');
+
+        if (pos == -1) {
+            continue;
+        }
+        paraName = parameters[i].substring(0, pos);
+        paraValue = parameters[i].substring(pos + 1);
+
+        if (paraName == name) {
+            return unescape(paraValue.replace(/\+/g, " "));
+        }
+    }
+
+    return '';
+}
+
+function keypress(textInput, evt) {
+    evt = evt ? evt : (window.event ? window.event : null);
+    if (evt.keyCode == 13) {//回车键
+            getKeyword();
+    }
+    return true;
+}
+
+// // //
+function getid(id) {
+    if (document.getElementById("homepage") != null) {
+        document.getElementById("Home").className = "title_item";
+    }
+    if (document.getElementById("homepage1") != null) {
+        document.getElementById("Home1").className = "title_item";
+    }
+    if (document.getElementById("homepage2") != null) {
+        document.getElementById("Home2").className = "title_item";
+    }
+    if (document.getElementById("homepage3") != null) {
+        document.getElementById("Home3").className = "title_item";
+    }
+    getID = id;
+
+    if (getID == "homepage") {
+        document.getElementById("Home").className = "title_item active";
+        if (document.getElementById("homepage1") != null) {
+            document.getElementById("Home1").className = "title_item";
+        }
+        if (document.getElementById("homepage2") != null) {
+            document.getElementById("Home2").className = "title_item";
+        }
+        if (document.getElementById("homepage3") != null) {
+            document.getElementById("Home3").className = "title_item";
+        }
+        $get("myList").style.display = "";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "none";
+    } else if (getID == "homepage1") {
+        document.getElementById("Home1").className = "title_item active";
+        if (document.getElementById("homepage") != null) {
+            document.getElementById("Home").className = "title_item";
+        }
+        if (document.getElementById("homepage2") != null) {
+            document.getElementById("Home2").className = "title_item";
+        }
+        if (document.getElementById("homepage3") != null) {
+            document.getElementById("Home3").className = "title_item";
+        }
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "none";
+    } else if (getID == "homepage2") {
+        document.getElementById("Home2").className = "title_item active";
+        if (document.getElementById("homepage1") != null) {
+            document.getElementById("Home1").className = "title_item";
+        }
+        if (document.getElementById("homepage") != null) {
+            document.getElementById("Home").className = "title_item";
+        }
+        if (document.getElementById("homepage3") != null) {
+            document.getElementById("Home3").className = "title_item";
+        }
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "";
+        $get("myList4").style.display = "none";
+    } else if (getID == "homepage3") {
+        document.getElementById("Home3").className = "title_item active";
+        if (document.getElementById("homepage1") != null) {
+            document.getElementById("Home1").className = "title_item";
+        }
+        if (document.getElementById("homepage2") != null) {
+            document.getElementById("Home2").className = "title_item";
+        }
+        if (document.getElementById("homepage") != null) {
+            document.getElementById("Home").className = "title_item";
+        }
+        $get("myList").style.display = "none";
+        $get("myList2").style.display = "none";
+        $get("myList3").style.display = "none";
+        $get("myList4").style.display = "";
+    }
+}
+
+function reloadPage() {
+
+    if (getID == "homepage") {
+        if (document.getElementById("keyword").value != "" && document.getElementById("keyword").value != null) {
+            //刷新页面1
+            getid(getID);
+            var HomePage = document.getElementById("Home");
+            HomePage.innerHTML = '<a id="homepage" onclick="getid(this.id)" href="javascript:showDir(' + searchID + ')" style="height:28px;color:#FFF;font-weight:bold;font-size:14px;background:#4388e3;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + '<p style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + document.getElementById("keyword").value + '</p>' + '</a>';//+ '<p style="border:1px;margin-left:66px;background:#4388e3;margin-top:-25px;height:25px;width:12px;"/>';
+        }
+    } else if (getID == "homepage1") {
+        if (document.getElementById("keyword").value != "" && document.getElementById("keyword").value != null) {
+            //刷新页面2
+            getid(getID);
+            var HomePage1 = document.getElementById("Home1");
+            HomePage1.innerHTML = '<a id="homepage1" onclick="getid(this.id)" href="javascript:showDir(' + searchID + ')" style="height:28px;color:#FFF;font-weight:bold;font-size:14px;background:#4388e3;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + '<p style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + document.getElementById("keyword").value + '</p>' + '</a>';// + '<input type="button" value="x" onclick="this.parentNode.parentNode.removeChild(this.parentNode)" style="border:1px;margin-left:66px;background:#4388e3;margin-top:-25px;height:25px;width:10px;" class=""/>';
+        }
+    } else if (getID == "homepage2") {
+        if (document.getElementById("keyword").value != "" && document.getElementById("keyword").value != null) {
+            //刷新页面3
+            getid(getID);
+            var HomePage2 = document.getElementById("Home2");
+            HomePage2.innerHTML = '<a id="homepage2" onclick="getid(this.id)" href="javascript:showDir(' + searchID + ')" style="height:28px;color:#FFF;font-weight:bold;font-size:14px;background:#4388e3;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + '<p style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + document.getElementById("keyword").value + '</p>' + '</a>';// + '<input type="button" value="x" onclick="this.parentNode.parentNode.removeChild(this.parentNode)" style="border:1px;margin-left:66px;background:#4388e3;margin-top:-25px;height:25px;width:10px;" class=""/>';
+        }
+    } else if (getID == "homepage3") {
+        if (document.getElementById("keyword").value != "" && document.getElementById("keyword").value != null) {
+            //刷新页面4
+            getid(getID);
+            var HomePage3 = document.getElementById("Home3");
+            HomePage3.innerHTML = '<a id="homepage3" onclick="getid(this.id)" href="javascript:showDir(' + searchID + ')" style="height:28px;color:#FFF;font-weight:bold;font-size:14px;background:#4388e3;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + '<p style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + document.getElementById("keyword").value + '</p>' + '</a>';// + '<input type="button" value="x" onclick="this.parentNode.parentNode.removeChild(this.parentNode)" style="border:1px;margin-left:66px;background:#4388e3;margin-top:-25px;height:25px;width:10px;" class=""/>';
+        }
+    }
+}
+
+
+function addBlank() {//添加空白空页
+    if (document.getElementById('myTab').getElementsByTagName('li').length < 5) {//控制的个数        
+
+        //$("#myTab").children().filter("#addpage").remove();
+        $("#myTab").find("#addpage").remove();
+
+        var ul = document.getElementById("myTab");
+        var x = document.createElement("li");//调用链接
+        var aid,pt_id;
+
+        if (typeof (document.getElementById("homepage1")) == "undefined" || document.getElementById("homepage1") == null) {
+            aid = "homepage1";//id="homepage1"
+            pt_id = "pagetitle2";
+            x.id = "Home1";
+            x.style.width = "90px";
+            x.style.borderLeft = "1px solid #fff";
+            x.style.marginLeft = "0px";
+        } else {
+            aid = "homepage2";
+            pt_id = "pagetitle3";
+            x.id = "Home2";
+            x.style.width = "90px";
+            x.style.borderLeft = "1px solid #fff";
+            x.style.marginLeft = "0px";
+        }
+        if (typeof (document.getElementById("homepage1")) != "undefined" && document.getElementById("homepage1") != null
+            && typeof (document.getElementById("homepage2")) != "undefined" && document.getElementById("homepage2") != null) {
+            aid = "homepage3";
+            pt_id = "pagetitle4";
+            x.id = "Home3";
+            x.style.width = "90px";
+            x.style.borderLeft = "1px solid #fff";
+            x.style.marginLeft = "0px";
+        }
+
+        x.className = "title_item";
+        x.innerHTML = '<a id="' + aid + '"  onclick="getid(this.id)"  style="height:28px;color:#FFF;font-weight:bold;font-size:14px;background:#4388e3;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">' + '<p id="' + pt_id + '" style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;margin-bottom:0px;">' + '新页面' + '</p>' + '</a>' + '<input  type="button" value="x" onclick="this.parentNode.parentNode.removeChild(this.parentNode);"class="aui_close"/>';
+        document.body.appendChild(x);
+        ul.appendChild(x);
+
+        var a = document.createElement("li");
+        a.id = "addpage";
+        a.innerHTML = '<input  type="button" value="+" onclick="addBlank()" class="iconfont icon-add" style="width:30px;background:#fff;margin-left:0px;border-right:1px solid #ccc;height:25px;"/>';
+        document.body.appendChild(a);
+        ul.appendChild(a);
+
+        getid(aid);
+        document.getElementById("keyword").value = "";
+        $get("DataNavigator").style.display = "none";
+        showDir(0);
+    }
+}
+
+function btncolor(btn) {
+    btn.style.background = "#45638c";
+}
+
+function totop() {
+    document.getElementById("myList").scrollTop = 0;
+    document.getElementById("myList2").scrollTop = 0;
+    document.getElementById("myList3").scrollTop = 0;
+    document.getElementById("myList4").scrollTop = 0;
+}
+function zip() {
+    for (var i = 0; i < zlcode_data.length; i++) {
+        hidezip(zlcode_data[i]);
+    }
+}
+function pageTitle() {
+    console.log(getID);
+    if (getID == "homepage") {
+        document.getElementById("pagetitle1").innerText = document.getElementById("keyword").value;
+    }
+    if (getID == "homepage1") {
+        document.getElementById("pagetitle2").innerText = document.getElementById("keyword").value;
+    }
+    if (getID == "homepage2") {
+        document.getElementById("pagetitle3").innerText = document.getElementById("keyword").value;
+    }
+    if (getID == "homepage3") {
+        document.getElementById("pagetitle4").innerText = document.getElementById("keyword").value;
+    }
+}
+
+
+window.onload = function () {
+    var el = document.getElementById("knowArea");
+    var oMenu = document.getElementById("right");
+    var _x, _y,_xl,_yl;
+    oMenu.style.display = "none";
+    el.oncontextmenu = function (e) {
+        e.preventDefault();
+    }
+        //左键--button属性=1，右键button属性=2
+    document.getElementById("knowArea").onmousedown = function (e) {
+        if (e.button == 2) {
+            e.preventDefault();
+
+            _x = e.clientX;
+            _y = e.clientY;
+
+            oMenu.style.display = "block";
+            oMenu.style.left = _x + "px";
+            oMenu.style.top = _y + "px";
+        }
+        if (e.button == 0) {//鼠标左键点击要在框框之外
+            _xl = e.clientX;
+            _yl = e.clientY;
+            if (_xl<_x||_xl>_x+40||_yl<_y||_yl>_y+50) {
+                oMenu.style.display = "none";
+            }
+        }
+    }
+}
+function tocopy() {
+    console.log("点击复制");
+}
+function tosend() {
+    console.log("点击发送");
+}
+
